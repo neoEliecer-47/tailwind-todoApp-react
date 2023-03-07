@@ -1,4 +1,4 @@
-export default ({fill = "#4B89D7", ...props}) => {
+export default ({fill = "#FFF", ...props}) => {
     return (
         <svg 
             {...props} 

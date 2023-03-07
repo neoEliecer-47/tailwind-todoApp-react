@@ -1,68 +1,108 @@
-import CrossIcon from "./components/icons/CrossIcon";
-import MoonIcon from "./components/icons/MoonIcon";
+import { useEffect, useState } from "react";
+import Header from "./components/Header";
+
+import TodoAdd from "./components/TodoAdd";
+import TodoComputed from "./components/TodoComputed";
+import TodoFilter from "./components/TodoFilter";
+import TodoList from "./components/TodoList";
+
+/*const initialStateTodos = [
+    {
+        id: 1,
+        title: "go to the gym",
+        completed: false,
+    },
+    {
+        id: 2,
+        title: "practice React js",
+        completed: true,
+    },
+    {
+        id: 3,
+        title: "reading a book",
+        completed: true,
+    },
+];*/
+
+const initialStateTodos = JSON.parse(localStorage.getItem("todos")) || []
 
 //<h1 className="text-center font-bold md:text-right">app</h1>;
 const App = () => {
-    return (
-        <div className="min-h-screen bg-gray-300 bg-[url('./assets/images/bg-mobile-light.jpg')] bg-contain bg-no-repeat">
-            <header className="container mx-auto px-4 pt-9">
-                <div className="flex justify-between">
-                    <h1 className=" text-3xl font-semibold uppercase tracking-[0.5em] text-white">
-                        todo
-                    </h1>
-                    <button> <MoonIcon className="fill-red-700" /> </button>
-                </div>
-                <form
-                    action=""
-                    className="mt-9 flex items-center gap-4 overflow-hidden rounded-md bg-white py-4 px-4"
-                >
-                    <span className="inline-block h-5 w-5 rounded-full border-2"></span>
-                    <input
-                        className="w-full text-gray-400 outline-none"
-                        type="text"
-                        placeholder="Create a new todo..."
-                    />
-                </form>
-            </header>{" "}
-            <main className="container mx-auto mt-9 px-4 ">
-                <div className="rounded-md bg-white">
-                    <article className="flex gap-4 border-b border-b-gray-400 py-4 px-4">
-                        <button className="inline-block h-5 w-5 rounded-full border-2"></button>
-                        <p className="grow text-gray-500">
-                            Complete online JavaScript course Neo ELiecer
-                        </p>
-                        <button>
-                            {" "}
-                            <CrossIcon />{" "}
-                        </button>
-                    </article>
-                    <article className="flex gap-4 border-b border-b-gray-400 py-4 px-4">
-                        <button className="inline-block h-5 w-5 rounded-full border-2"></button>
-                        <p className="grow text-gray-500">
-                            Complete online node js course Neo ELiecer
-                        </p>
-                        <button>
-                            {" "}
-                            <CrossIcon />{" "}
-                        </button>
-                    </article>
+    const [todos, setTodos] = useState(initialStateTodos);
 
-                    <section className="flex justify-between py-4 px-4">
-                        <span className="text-gray-400">5 items left</span>
-                        <button className="text-gray-400">
-                            clear completed
-                        </button>
-                    </section>
-                </div>
+    useEffect(() => {
+        localStorage.setItem("todos", JSON.stringify(todos))
+    }, [todos])
+
+    const addTodo = (title) => {
+        const newTodo = {
+            id: Date.now(),
+            title,
+            completed: false
+        }
+
+        setTodos([...todos, newTodo])
+        console.log(todos)
+    }
+
+
+    const removeTodo = (id) => {
+        setTodos(todos.filter(todo => todo.id !== id))
+    }
+
+    const updateTodo = (id) => {                       //operador ternario retorna lo que esta en ? o :
+        setTodos(todos.map((todo) => todo.id === id ? {...todo, completed: !todo.completed} : todo))
+    }                                                 //id: todo.id, title: todo.title ---> spread operator con (...todo)
+
+
+    const computedTodoNotCompleted = () =>  todos.filter((todo) => !todo.completed).length
+                                                //con filter, filtramos todos los que en completed sean false y los contamos con length
+
+    const clearTodosCompleted = () => {
+        setTodos(todos.filter((todo) => !todo.completed))
+    }
+
+
+    const [filter, setFilter] = useState("all")
+
+    const filterTodos = () => {
+        switch (filter) {
+            case "all":
+                return todos
+            case "active":
+                return todos.filter((todo) => !todo.completed)
+            case "completed":
+                return todos.filter((todo) => todo.completed)
+        
+            default:
+                return todos;
+        }
+    }
+
+
+    const changeFilterTodos = (filter) => setFilter(filter)
+
+
+    return (
+        <div className="transition-all duration-700 min-h-screen bg-gray-300 bg-[url('./assets/images/bg-mobile-light.jpg')] bg-contain bg-no-repeat dark:bg-gray-800 dark:bg-[url('./assets/images/bg-mobile-dark.jpg')] md:bg-[url('./assets/images/bg-desktop-light.jpg')] dark:md:bg-[url('./assets/images/bg-desktop-dark.jpg')]">
+            <Header />
+            <main className="container mx-auto mt-9 px-4 md:max-w-xl">
+                <TodoAdd addTodo={addTodo}/>
+
+                <TodoList
+                  todos={filterTodos()}//se le pasan los corchetes para que se ejecute de una vez
+                  removeTodo={removeTodo}
+                  updateTodo={updateTodo} />
+
+                <TodoComputed
+                  computedTodoNotCompleted={computedTodoNotCompleted()}
+                  clearTodosCompleted={clearTodosCompleted} />
+
+                <TodoFilter changeFilterTodos={changeFilterTodos} filter={filter}/>
             </main>
-            <section className="container mx-auto mt-4 px-4">
-                <div className="bg-white p-4 rounded-md flex gap-4 justify-center font-bold">
-                    <button className="text-blue-600">All</button>
-                    <button className="hover:text-blue-600">Active</button>
-                    <button className="hover:text-blue-600">Completed</button>
-                </div>
-            </section>
-            <p className="text-center mt-8 font-bold text-gray-400">drag and drop</p>
+            <footer className="mt-8 text-center font-bold text-gray-500">
+                drag and drop to reorder list
+            </footer>
         </div>
     );
 };
