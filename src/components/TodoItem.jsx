@@ -1,13 +1,14 @@
+import  React  from "react";
 import CheckIcon from "./icons/CheckIcon";
 import CrossIcon from "./icons/CrossIcon";
 
-const TodoItem = ({ todo, updateTodo, removeTodo }) => {
+const TodoItem = React.forwardRef(({ todo, updateTodo, removeTodo, ...props }, ref) => {//para pasar refenrencias a componente padre
     const { id, title, completed } = todo;//CARA2427176482949
     //582127201324 --> linea de ayuda biometric visa
 
     return (
         //template string
-        <article className="flex gap-4 border-b border-b-gray-400 py-4 px-4">
+        <article {...props} ref={ref} className="flex gap-4 border-b border-b-gray-400 py-4 px-4">
             <button
                 className={`inline-block h-6 w-6 rounded-full border-2 ${
                     completed &&
@@ -31,6 +32,9 @@ const TodoItem = ({ todo, updateTodo, removeTodo }) => {
             </button>
         </article>
     );
-};
+}
+
+)
+
 
 export default TodoItem;
